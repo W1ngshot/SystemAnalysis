@@ -2,12 +2,12 @@
 
 ## Концептуальный уровень
 
-![Концептуальный уровень](ER_conceptual.png)
+![Концептуальный уровень](ER_models/ER_conceptual.png)
 
 ## Логический уровень
 
-![Логический уровень](ER_logical.png)
+![Логический уровень](ER_models/ER_logical.png)
 
 ## Физический уровень
 
-![Физический уровень](ER_physical.png)
+![Физический уровень](ER_models/ER_physical.png)
