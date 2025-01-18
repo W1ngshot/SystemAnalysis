@@ -8,6 +8,7 @@
 | Директория | Описание |
 |------------|--------------------------------|
 | [`requirements/`](https://github.com/W1ngshot/SystemAnalysis/blob/requirements/requirements/) | Описание требований к проекту |
+| [`entity-relationship-models/`](https://github.com/W1ngshot/SystemAnalysis/blob/ER-model/entity-relationship-models/) | ER модель, физическая схема БД, описание таблиц |
 
 ## 📝 План проектной работы
 🔹 Описание требований  
