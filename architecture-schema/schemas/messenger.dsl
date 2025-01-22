@@ -1,120 +1,134 @@
 workspace {
 
     model {
-        user = person "User"
-        softwareSystem = softwareSystem "Software System" {
-            webApp = container "Web Application" {
-                user -> this "Uses"
+        user = person "Пользователь" "Конечный пользователь, взаимодействующий с системой"
+        softwareSystem = softwareSystem "Программная система" "Основная система, предоставляющая услуги пользователям" {
+            webApp = container "Web Application" "Фронтенд для пользователей на настольных компьютерах" {
+                tags "web-app"
+                
+                user -> this "Взаимодействует через браузер"
             }
             
-            mobileApp = container "Mobile Application" {
-                user -> this "Uses"
+            mobileApp = container "Mobile Application" "Фронтенд для мобильных пользователей" {
+                tags "mobile-app"
+                
+                user -> this "Взаимодействует через мобильное устройство"
             }
             
-            gateway = container "Gateway" {
-                webApp -> this "Requests"
-                mobileApp -> this "Requests"
+            proxy = container "Reverse Proxy" "Управляет и маршрутизирует входящие запросы к соответствующим сервисам" {
+                tags "proxy"
+                
+                webApp -> this "Отправляет REST и WebSocket запросы"
+                mobileApp -> this "Отправляет REST и WebSocket запросы"
             }
             
-            keycloak = container "Keycloak" "External Identity Service" {
-                gateway -> this "Register/Get token"
-                this -> gateway "Token"
+            keycloak = container "Keycloak" "Внешний сервис для аутентификации и авторизации" {
+                tags "auth-service"
+                
+                proxy -> this "Обрабатывает регистрацию и вход пользователей"
             }
 
-            mainApi = container "Main API Application" "Provides actions with API via Json" "ASP .NET" {
-                userEndpoints = component "User Endpoints" "Endpoints for user profiles" "ASP .NET" {
-                    gateway -> this "Calls"
+            messengerApi = container "Messenger Monolith Application" "Основное бэкенд приложение мессенджера" "ASP .NET" {
+                tags "api"
+            
+                authHandler = component "Auth Hanlder" "Валидирует полученный токен при запросе, проверяя роли" "ASP .NET" {
+                    this -> keycloak "Запрашивает метаданные авторизации"
                 }
-                userModule = component "User Module" "Actions with user profiles" "ASP .NET" {
-                    userEndpoints -> this "Calls"
+            
+                api = component "API Layer (Minimal API Endpoints)" "Определяет эндпоинты для внешних запросов" "ASP .NET" {
+                    proxy -> this "Перенаправляет REST-запросы"
+                    this -> authHandler "Проверка авторизации при запросе защищенных эндпоинтов"
                 }
                 
-                fileEndpoints = component "File Endpoints" "Endpoints for actions with files" "ASP .NET" {
-                    gateway -> this "Calls"
+                commandHandlers = component "Command Handlers" "Обрабатывают команды и обновляют состояние" "ASP .NET" {
+                    api -> this "Выполняет команды через вызовы методов"
                 }
-                fileModule = component "File Module" "Actions with files" "ASP .NET" {
-                    fileEndpoints -> this "Calls"
+                
+                queryHandlers = component "Query Handlers" "Обрабатывают запросы и извлекают необходимые данные" "ASP .NET" {
+                    api -> this "Выполняет запросы через вызовы методов"  
                 }
-
-                convEndpoints = component "Conversation Endpoints" "Endpoints for basic conversations actions" "ASP .NET" {
-                    gateway -> this "Calls"
+                
+                models = component "Models" "Модели предметной области, представляющие бизнес-сущности" "ASP .NET" {
+                    commandHandlers -> this "Использует модели для обработки команд"
+                    queryHandlers -> this "Использует модели для получения данных"
                 }
-
-                channelEndpoints = component "Channel Endpoints" "Endpoints for channels" "ASP .NET" {
-                    gateway -> this "Calls"
+                
+                repositories = component "Repositories" "Управляют доступом к постоянному хранилищу данных" "ASP .NET" {
+                    commandHandlers -> this "Обращается к хранилищу данных для выполнения команд"
+                    queryHandlers -> this "Обращается к хранилищу данных для выполнения запросов"
                 }
-                channelModule = component "Channel Module" "Actions with channels" "ASP .NET" {
-                    channelEndpoints -> this "Calls"
-                    convEndpoints -> this "Calls"
-                }
-
-                groupEndpoints = component "Group Endpoints" "Endpoints for group chats" "ASP .NET" {
-                    gateway -> this "Calls"
-                }
-                groupModule = component "Group Module" "Actions with group chats" "ASP .NET" {
-                    groupEndpoints -> this "Calls"
-                    convEndpoints -> this "Calls"
+                
+                externalServices = component "External Services" "Интегрируются с внешними API и системами" "ASP .NET" {
+                    commandHandlers -> this "Взаимодействует с внешними системами"
+                    queryHandlers -> this "Получает данные из внешних систем"
                 }
 
-                pmEndpoints = component "Private Message Endpoints" "Endpoints for private messages" "ASP .NET" {
-                    gateway -> this "Calls"
-                }
-                pmModule = component "Private Message Module" "Actions with private messages" "ASP .NET" {
-                    pmEndpoints -> this "Calls"
-                    convEndpoints -> this "Calls"
-                }
-
-                outboxProcessModule = component "Outbox Pattern Process Module" "Processing Messages From Postgres To Kafka" "ASP .NET" {
+                asyncProcessing = component "Outbox Pattern Process Module" "Обрабатывает несообщённые сообщения для Kafka" "ASP .NET" {
+                    this -> repositories "Читает несообщённые сообщения из базы данных"
                 }
             }
 
-            container "Redis Storage" {
-                userModule -> this "Reads from and writes to"
-                pmModule -> this "Reads from and writes to"
-                channelModule -> this "Reads from and writes to"
-                groupModule -> this "Reads from and writes to"
-                fileModule -> this "Reads from and writes to"
+            container "Redis Cache" "Временное хранилище данных для быстрого доступа" {
+                tags "cache"
+                
+                externalServices -> this "Читает и записывает данные в кэш"
             }
 
-            container "Postgres Database" {
-                userModule -> this "Reads from and writes to"
-                pmModule -> this "Reads from and writes to"
-                channelModule -> this "Reads from and writes to"
-                groupModule -> this "Reads from and writes to"
-                fileModule -> this "Reads from and writes to"
-                outboxProcessModule -> this "Reads from and writes to"
+            container "Postgres Database" "Основная реляционная база данных для приложения" {
+                tags "database"
+                
+                repositories -> this "Читает и записывает постоянные данные"
             }
 
-            container "Minio Storage" {
-                fileModule -> this "Reads from and writes to"
-                gateway -> this "Gets files via presigned urls"
+            container "Minio Storage" "Система объектного хранилища для файлов и мультимедиа" {
+                tags "storage"
+                
+                externalServices -> this "Сохраняет файлы и генерирует presigned URLs"
+                proxy -> this "Предоставляет файлы через presigned URLs"
             }
 
-            kafka = container "Kafka" {
-                outboxProcessModule -> this "Produce"
+            kafka = container "Kafka" "Брокер сообщений для асинхронной коммуникации" {
+                tags "message-broker"
+                
+                asyncProcessing -> this "Публикует сообщения в топики"
             }
 
-            notifications = container "Notifications Microservice" "Realtime communication for notification messages" "ASP .NET" {
-                notificationConsumer = component "Notification consumer" "Consumer for notifications messages" "ASP .NET" {
-                    kafka -> this "Consume"
+            notifications = container "Notifications Microservice" "Управляет уведомлениями в реальном времени для пользователей" "ASP .NET" {
+                tags "microservice"
+                
+                notificationAuthHandler = component "Auth Hanlder" "Валидирует полученный токен при запросе, проверяя роли" "ASP .NET" {
+                    this -> keycloak "Запрашивает метаданные авторизации"
                 }
-                notificationModule = component "Notification Module" "Provides websocket connections" "ASP .NET" {
-                    notificationConsumer -> this "Calls"
-                    this -> gateway "Notifications via websockets if user online"
-                    gateway -> this "Connects via websockets"
+                
+                consumers = component "Consumers" "Обрабатывают сообщения из Kafka для уведомлений" "ASP .NET" {
+                    kafka -> this "Подписывается на топики и обрабатывает сообщения"
                 }
-            }
-            
-            container "Notification Redis Storage" {
-                notificationModule -> this "Reads from and writes to"
+                
+                messageHandlers = component "Message Handlers" "Обрабатывают входящие сообщения и запускают соответствующие действия" "ASP .NET" {
+                    consumers -> this "Вызывает методы для обработки уведомлений"
+                }
+                
+                hubs = component "SignalR Hubs" "Управляет WebSocket-соединениями и уведомлениями" "ASP .NET" {
+                    messageHandlers -> this "Получает обработанные уведомления для доставки"
+                    this -> proxy "Отправляет уведомления через WebSocket, если пользователь онлайн"
+                    proxy -> this "Устанавливает WebSocket-соединения"
+                    this -> notificationAuthHandler "Проверка авторизации при подключении к хабу"
+                }
             }
             
-            container "Push Notification Service" {
-                notificationModule -> this "Calls if user is not connected to websockets"
-                this -> gateway "Notifications via push if user not online"
+            container "Notification Redis Storage" "Временное хранилище данных состояния уведомлений" {
+                tags "cache"
+                
+                messageHandlers -> this "Сохраняет и извлекает данные пользователей"
+                hubs -> this "Сохраняет и извлекает данные подключений"
             }
             
-            
+            container "Push Notification Service" "Доставляет push-уведомления пользователям, которые не в сети" {
+                tags "push-service"
+                
+                messageHandlers -> this "Отправляет push-уведомления, когда WebSocket недоступен"
+                this -> proxy "Доставляет push-уведомления пользователю"
+            }
         }
     }
 
@@ -129,7 +143,7 @@ workspace {
             autolayout lr
         }
         
-        component mainApi {
+        component messengerApi {
             include *
             autolayout lr
         }
@@ -140,6 +154,74 @@ workspace {
         }
 
         theme default
+        
+        styles {
+            element "web-app" {
+                background "#ffcc99"
+                shape "RoundedBox"
+                color "#000000"
+            }
+    
+            element "mobile-app" {
+                background "#cc99ff"
+                shape "RoundedBox"
+                color "#000000"
+            }
+    
+            element "proxy" {
+                background "#cccccc"
+                shape "Box"
+                color "#000000"
+            }
+    
+            element "api" {
+                background "#99ccff"
+                shape "Box"
+                color "#000000"
+            }
+    
+            element "microservice" {
+                background "#ccffcc"
+                shape "Box"
+                color "#000000"
+            }
+    
+            element "push-service" {
+                background "#669966"
+                shape "Box"
+                color "#000000"
+            }
+    
+            element "auth-service" {
+                background "#99ccff"
+                shape "Box"
+                color "#000000"
+            }
+    
+            element "message-broker" {
+                background "#ffcc00"
+                shape "Hexagon"
+                color "#000000"
+            }
+    
+            element "cache" {
+                background "#ff9999"
+                shape "Cylinder"
+                color "#000000"
+            }
+    
+            element "database" {
+                background "#99cc99"
+                shape "Cylinder"
+                color "#000000"
+            }
+    
+            element "storage" {
+                background "#99ccff"
+                shape "Folder"
+                color "#000000"
+            }
+        }
     }
 
 }
