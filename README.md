@@ -12,6 +12,7 @@
 | [`use-cases-and-user-stories/`](https://github.com/W1ngshot/SystemAnalysis/blob/use-cases-and-user-stories/use-cases-and-user-stories/) | Use Cases & User Stories |
 | [`entity-relationship-models/`](https://github.com/W1ngshot/SystemAnalysis/blob/ER-model/entity-relationship-models/) | ER модель, физическая схема БД, описание таблиц |
 | [`architecture-schema/`](https://github.com/W1ngshot/SystemAnalysis/blob/architecture/architecture-schema/) | Архитектурная схема |
+| [`api-description/`](https://github.com/W1ngshot/SystemAnalysis/blob/api-description/api-description/) | Описания API проекта |
 
 ## 📝 План проектной работы
 🔹 Описание требований  
@@ -20,4 +21,4 @@
 🔹 ER модель, физическая схема БД, описание таблиц  
 🔹 UML диаграммы  
 🔹 Архитектурная схема  
-🔹 Описание API для проекта  
+🔹 Описание API проекта  
