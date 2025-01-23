@@ -6,7 +6,7 @@
 
 ## 2. Метод запроса  
 
-**PUT**  
+**POST**  
 
 ## 3. URL  
 
@@ -100,7 +100,7 @@
 ### Пример запроса
 
 ```http
-PUT /channel/4d0a8fa6-364f-4141-b0d3-b21cacaf300a/join HTTP/1.1  
+POST /channel/4d0a8fa6-364f-4141-b0d3-b21cacaf300a/join HTTP/1.1  
 Host: api.messenger.com  
 Content-Type: application/json  
 Authorization: Bearer token
