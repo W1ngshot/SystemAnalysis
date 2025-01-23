@@ -41,7 +41,7 @@
 
 ## 7. Структура ответа  
 
-У ответа отсутвует Response Body.
+У ответа отсутвуют данные в ответе.
 
 ## 8. Алгоритм обработки запроса
 
@@ -75,12 +75,42 @@
 ## 9. Код состояния ответа
 
 - `204 No Content`: Успешное выполнение запроса.
+- `400 Bad Request`: Введенные данные не валидны.
 - `401 Unauthorized`: Отсутствует или неверный токен.
 - `403 Forbidden`: Пользователь не является действующим участником чата или не имеет нужных прав.
 - `404 Not Found`: Так как за валидацию `conversationId` отвечает роутинг ASP. NET, то при невалидном UUID энпоинт просто не найдется.
 - `500 Internal Server Error`: Внутренняя ошибка сервера.
 
 ## 10. Ошибки
+
+- ### 400 Bad Request
+  
+  - **Response Body:**
+    ```json
+    {
+      "type": "https://tools.ietf.org/html/rfc7231#section-6.5.1",
+      "title": "VALIDATION_FAILED",
+      "status": 400,
+      "errors": {
+        "newTitle": [
+          {
+            "message": "MUST_NOT_BE_EMPTY",
+            "localizationValues": {}
+          }
+        ],
+        "newDescription": [
+          {
+            "message": "LENGTH_MUST_BE_AT_MAX",
+            "localizationValues": {
+              "maxLength": 500,
+              "totalLength": 501
+            }
+          }
+        ]
+      }
+    }
+    ```
+
 - ### 401 Unauthorized
 
   - **Response body:** Отсутствует.
