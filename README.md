@@ -5,15 +5,16 @@
 Тема данного проекта - **мессенджер**.
 
 ## 📂 Структура репозитория
-| Директория | Описание |
-|------------|--------------------------------|
-| [`requirements/`](https://github.com/W1ngshot/SystemAnalysis/blob/requirements/requirements/) | Описание требований к проекту |
-| [`bpmn/`](https://github.com/W1ngshot/SystemAnalysis/blob/bpmn/bpmn/) | BPMN-схемы |
-| [`use-cases-and-user-stories/`](https://github.com/W1ngshot/SystemAnalysis/blob/use-cases-and-user-stories/use-cases-and-user-stories/) | Use Cases & User Stories |
-| [`entity-relationship-models/`](https://github.com/W1ngshot/SystemAnalysis/blob/ER-model/entity-relationship-models/) | ER модель, физическая схема БД, описание таблиц |
-| [`uml-diagrams/`](https://github.com/W1ngshot/SystemAnalysis/blob/uml-diagrams/uml-diagrams/) | UML диаграммы |
-| [`architecture-schema/`](https://github.com/W1ngshot/SystemAnalysis/blob/architecture/architecture-schema/) | Архитектурная схема |
-| [`api-description/`](https://github.com/W1ngshot/SystemAnalysis/blob/api-description/api-description/) | Описания API проекта |
+| Директория                                                   | Описание                                        |
+|--------------------------------------------------------------|-------------------------------------------------|
+| [`requirements/`](requirements/)                             | Описание требований к проекту                   |
+| [`bpmn/`](bpmn/)                                             | BPMN-схемы                                      |
+| [`use-cases-and-user-stories/`](use-cases-and-user-stories/) | Use Cases & User Stories                        |
+| [`entity-relationship-models/`](entity-relationship-models/) | ER модель, физическая схема БД, описание таблиц |
+| [`uml-diagrams/`](uml-diagrams/)                             | UML диаграммы                                   |
+| [`architecture-schema/`](architecture-schema/)               | Архитектурная схема                             |
+| [`api-description/`](api-description/)                       | Описания API проекта                            |
+| [`kafka/`](kafka/)                                           | Описание Kafka в проекте                        |
 
 ## 📝 План проектной работы
 🔹 Описание требований  
@@ -23,3 +24,4 @@
 🔹 UML диаграммы  
 🔹 Архитектурная схема  
 🔹 Описание API проекта  
+🔹 Описание Kafka в проекте  
